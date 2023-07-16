@@ -41,7 +41,9 @@ class MyTarInfo(tarfile.TarInfo):
         if tarinfo.type == tarfile.LNKTYPE:
             tarinfo.type = tarfile.SYMTYPE
             tarinfo.linkname = os.path.join(
-                os.path.relpath(os.path.dirname(tarinfo.linkname), os.path.dirname(tarinfo.name)),
+                os.path.relpath(
+                    os.path.dirname(tarinfo.linkname), os.path.dirname(tarinfo.name)
+                ),
                 os.path.basename(tarinfo.linkname),
             )
         return tarinfo
@@ -52,7 +54,9 @@ class MyTarInfo(tarfile.TarInfo):
         if tarinfo.type == tarfile.LNKTYPE:
             tarinfo.type = tarfile.SYMTYPE
             tarinfo.linkname = os.path.join(
-                os.path.relpath(os.path.dirname(tarinfo.linkname), os.path.dirname(tarinfo.name)),
+                os.path.relpath(
+                    os.path.dirname(tarinfo.linkname), os.path.dirname(tarinfo.name)
+                ),
                 os.path.basename(tarinfo.linkname),
             )
         return tarinfo
@@ -68,21 +72,27 @@ haikuporterRepoUrl = "https://github.com/haikuports/haikuporter.git"
 def sysExit(message):
     """wrap invocation of sys.exit()"""
 
-    message = "\n".join([colorError + "Error: " + line + colorReset for line in message.split("\n")])
+    message = "\n".join(
+        [colorError + "Error: " + line + colorReset for line in message.split("\n")]
+    )
     sys.exit(message)
 
 
 def warn(message):
     """print a warning"""
 
-    message = "\n".join([colorWarning + "Warning: " + line + colorReset for line in message.split("\n")])
+    message = "\n".join(
+        [colorWarning + "Warning: " + line + colorReset for line in message.split("\n")]
+    )
     logging.getLogger("buildLogger").warn(message)
 
 
 def info(message):
     """print an info"""
     if message is not None and message != "":
-        logging.getLogger("buildLogger").info(message if message[-1] != "\n" else message[:-1])
+        logging.getLogger("buildLogger").info(
+            message if message[-1] != "\n" else message[:-1]
+        )
 
 
 def printError(*args):
@@ -107,13 +117,31 @@ def unpackArchive(archiveFile, targetBaseDir, subdir):
         ext = archiveFile.split("/")[-1].split(".")[-1]
         if ext == "lz":
             ensureCommandIsAvailable("lzip")
-            process = Popen(["lzip", "-c", "-d", archiveFile], bufsize=10240, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            process = Popen(
+                ["lzip", "-c", "-d", archiveFile],
+                bufsize=10240,
+                stdin=PIPE,
+                stdout=PIPE,
+                stderr=PIPE,
+            )
         elif ext == "7z":
             ensureCommandIsAvailable("7za")
-            process = Popen(["7za", "x", "-so", archiveFile], bufsize=10240, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            process = Popen(
+                ["7za", "x", "-so", archiveFile],
+                bufsize=10240,
+                stdin=PIPE,
+                stdout=PIPE,
+                stderr=PIPE,
+            )
         elif ext == "zst":
             ensureCommandIsAvailable("zstd")
-            process = Popen(["zstd", "-c", "-d", archiveFile], bufsize=10240, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            process = Popen(
+                ["zstd", "-c", "-d", archiveFile],
+                bufsize=10240,
+                stdin=PIPE,
+                stdout=PIPE,
+                stderr=PIPE,
+            )
 
     if subdir and not subdir.endswith("/"):
         subdir += "/"
@@ -132,9 +160,9 @@ def unpackArchive(archiveFile, targetBaseDir, subdir):
             def filterByDir(members):
                 for member in members:
                     member = copy.copy(member)
-                    if os.path.normpath(member.name).startswith(subdir) and not os.path.normpath(member.name).endswith(
-                        "/.git"
-                    ):
+                    if os.path.normpath(member.name).startswith(
+                        subdir
+                    ) and not os.path.normpath(member.name).endswith("/.git"):
                         if hasattr(os, "geteuid") and os.geteuid() == 0:
                             member.gname = ""
                             member.uname = ""
@@ -149,7 +177,11 @@ def unpackArchive(archiveFile, targetBaseDir, subdir):
         zipFile = zipfile.ZipFile(archiveFile, "r")
         names = None
         if subdir:
-            names = [name for name in zipFile.namelist() if os.path.normpath(name).startswith(subdir)]
+            names = [
+                name
+                for name in zipFile.namelist()
+                if os.path.normpath(name).startswith(subdir)
+            ]
             if not names:
                 sysExit("sub-directory %s not found in archive" % subdir)
         zipFile.extractall(targetBaseDir, names)
@@ -244,10 +276,12 @@ def naturalCompare(left, right):
     -1 if left is lower than right
      1 if left is higher than right
      0 if both are equal"""
-
+    """
     convert = lambda text: int(text) if text.isdigit() else text.lower()
     alphanum_key = lambda key: [convert(c) for c in re.split("([0-9]+)", key)]
     return cmp(alphanum_key(left), alphanum_key(right))
+    """
+    return cmp(bytes(left.encode("utf-8")), bytes(right.encode("utf-8")))
 
 
 def bareVersionCompare(left, right):
