@@ -24,24 +24,6 @@ from .ReporterJson import ReporterJson
 from .ReporterMongo import ReporterMongo
 from .Utils import ensureCommandIsAvailable, info, sysExit, warn
 
-
-class ThreadFilter(object):
-	def __init__(self):
-		self.ident = threading.current_thread().ident
-		self.build = None
-
-	def reset(self):
-		self.ident = threading.current_thread().ident
-	def setBuild(self, build):
-		self.build = build
-
-	def filter(self, record):
-		ours = threading.current_thread().ident == self.ident
-		if ours and self.build:
-			self.build['lines'] += 1
-		return ours
-
-
 class ScheduledBuild(object):
 	def __init__(self, port, portsTreePath, requiredPackageIDs, packagesPath,
 		presentDependencyPackages):

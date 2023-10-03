@@ -13,6 +13,7 @@ import os
 import re
 import shutil
 import sys
+import threading
 import tarfile
 import time
 import zipfile
@@ -26,6 +27,30 @@ else:
 	colorWarning = ''
 	colorError = ''
 	colorReset = ''
+
+# -- Threads ---------------------------------------------------------------
+
+class ThreadFilter:
+	"""Handles filtering logs records based on thread id."""
+	
+	def __init__(self):
+		self.ident:int = threading.current_thread().ident
+		self.build:dict = {}
+
+	def reset(self):
+		"""Resets filter thread id."""
+		self.ident = threading.current_thread().ident
+
+	def setBuild(self, build:dict):
+		"""Assignes given build to local one."""
+		self.build = build
+
+	def filter(self, _):
+		"""Filters messages that are related to the current thread."""
+		ours = threading.current_thread().ident == self.ident
+		if ours and self.build:
+			self.build['lines'] += 1
+		return ours
 
 # -- MyTarInfo -------------------------------------------------------------
 

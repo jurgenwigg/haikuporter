@@ -11,7 +11,7 @@ import stat
 import time
 
 from .Builder import BuilderState
-
+from ..Utils import ThreadFilter
 
 class LocalBuilder(object):
 	def __init__(self, name, packagesPath, outputBaseDir, options):
