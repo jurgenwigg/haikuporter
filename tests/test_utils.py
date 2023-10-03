@@ -19,7 +19,7 @@ def thread_filter():
 def test_init():
     """Tests if ThreadFilter() initialises properly."""
     result = ThreadFilter()
-    assert result.build is None and isinstance(result.ident, int)
+    assert not result.build and isinstance(result.ident, int)
 
 
 def test_reset(thread_filter):
